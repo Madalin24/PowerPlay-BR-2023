@@ -29,6 +29,8 @@
 
 package org.firstinspires.ftc.teamcode;
 
+import android.content.res.Resources;
+
 import  com.acmerobotics.dashboard.FtcDashboard;
 import com.acmerobotics.dashboard.telemetry.MultipleTelemetry;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
@@ -59,6 +61,7 @@ public class OfficialOP extends LinearOpMode {
 
     boolean highj = false;
     boolean midj = false;
+    boolean base = false;
 
     @Override
     public void runOpMode() {
@@ -73,18 +76,23 @@ public class OfficialOP extends LinearOpMode {
         final Thread high = new Thread() {
             public void run() {
                 lift.up(2);
-                OfficialOP.this.sleep(200);
+                minicookies.pick.setPosition(0.50 );
+                //minicookies.put();
             }
         };
         final Thread down_high = new Thread() {
             public void run() {
+                minicookies.take();
                 OfficialOP.this.sleep(250);
                 lift.down();
+                minicookies.pick.setPosition(0.1);
             }
         };
         final Thread mid = new Thread() {
             public void run() {
                 lift.up(1);
+                minicookies.pick.setPosition(0.50);
+                //minicookies.put();
             }
         };
         final Thread down_mid = new Thread() {
@@ -93,6 +101,26 @@ public class OfficialOP extends LinearOpMode {
                 OfficialOP.this.sleep(250);
                 lift.down();
                 OfficialOP.this.sleep(250);
+                minicookies.pick.setPosition(0.1);
+            }
+        };
+        final Thread arm_up = new Thread() {
+            public void run() {
+                minicookies.close();
+                OfficialOP.this.sleep(150);
+                if (base) {
+                    minicookies.def();
+                    base = false;
+                }
+                minicookies.up();
+                putcookies.up_arm();
+            }
+        };
+        final Thread tostart = new Thread() {
+            public void run() {
+                putcookies.up_arm_to_pos(120);
+                OfficialOP.this.sleep(1000);
+                minicookies.startoff();
             }
         };
 
@@ -100,10 +128,17 @@ public class OfficialOP extends LinearOpMode {
 
         waitForStart();
 
+        tostart.start();
+        while (tostart.isAlive()) {
+            putcookies.update();
+        }
+
         //after start;
 
         while (opModeIsActive()) {
 
+            lift.update();
+            putcookies.update();
 
             if (gamepad1.cross && !ok_speed) {
                 ok_speed = true;
@@ -130,20 +165,28 @@ public class OfficialOP extends LinearOpMode {
             // Gamepad 2
 
             //Ground
-            if(gamepad2.square){
+            if (gamepad2.square) {
                 minicookies.open();
             }
-            if(gamepad2.circle){
+            if (gamepad2.circle) {
                 minicookies.close();
+            }
+            //Arm up/down
+            if (gamepad2.triangle) {
+                arm_up.start();
+            }
+            if (gamepad2.cross) {
+                putcookies.down_arm();
+                minicookies.down();
             }
             //Lift
             //down
-            if (gamepad2.cross) {
-                if(midj) {
+            if (gamepad2.dpad_down) {
+                if (midj) {
                     midj = false;
                     minicookies.take();
                     down_mid.start();
-                }else if(highj){
+                } else if (highj) {
                     highj = false;
                     down_high.start();
                 }
@@ -161,33 +204,40 @@ public class OfficialOP extends LinearOpMode {
                 high.start();
                 speedM = 0.65f;
             }
-            //last position
-            if(gamepad2.dpad_left){
-                lift.one();
-            }
-            if(gamepad2.triangle){
-                lift.one_up();
-            }
-            if(gamepad2.dpad_down){
-                lift.one_down();
-            }
             //Bumper
-            if(gamepad2.left_bumper){
+            if (gamepad1.right_bumper) {
                 minicookies.put();
             }
-            if(gamepad2.right_bumper){
+            if (gamepad1.left_bumper) {
                 minicookies.take();
             }
+            //Base
+            if (gamepad2.right_trigger >=1){
+                minicookies.right();
+                base = true;
+            }
+            if (gamepad2.left_trigger >=1){
+                minicookies.left();
+                base = true;
+            }
+            if (gamepad2.dpad_left) {
+                minicookies.def();
+                base = false;
+            }
 
-            minicookies.upl.setPosition(minicookies.upl.getPosition() + gamepad2.right_stick_y/50);
-            minicookies.upr.setPosition(minicookies.upr.getPosition() + gamepad2.right_stick_y/50);
+            minicookies.pick.setPosition(minicookies.pick.getPosition() + gamepad2.right_stick_x / 100);
 
-            telemetry.addData("picki ", minicookies.upl.getPosition() + " "  + minicookies.upr.getPosition());
-            telemetry.addData("lift ",lift.gl.getCurrentPosition() + " " + lift.gr.getCurrentPosition());
+            minicookies.posa.setPosition(minicookies.posa.getPosition() + gamepad2.right_stick_y / 100);
 
+            telemetry.addData("rotatie", minicookies.base.getCurrentPosition());
+            telemetry.addData("pozarm", minicookies.posa.getPosition());
+            telemetry.addData("picki", minicookies.pick.getPosition());
+            telemetry.addData("gl_st", lift.gl.getCurrentPosition());
+            telemetry.addData("gl_rg", lift.gr.getCurrentPosition());
+            telemetry.addData("target", putcookies.setpoint_arm);
+            telemetry.addData("position", putcookies.arm.getCurrentPosition());
             telemetry.update();
-
-            lift.update();
         }
     }
 }
+

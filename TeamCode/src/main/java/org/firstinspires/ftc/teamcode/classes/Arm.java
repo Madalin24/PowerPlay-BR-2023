@@ -25,8 +25,8 @@ public class Arm {
     public static double kP = 0.004;
     public static double kI = 0;
 
-    public static double kD = 0.0004;
-    public static double kF = 0.003;
+    public static double kD = 0.00054;
+    public static double kF = 0.08;
     public static int offset = 460;
 
     public static double setpoint_arm = 0;
@@ -75,7 +75,7 @@ public class Arm {
         if(ok){
             setpoint_arm = -355;
         }else{
-            setpoint_arm = 40;
+            setpoint_arm = 100;
         }
     }
 
@@ -83,12 +83,11 @@ public class Arm {
         if(ok){
             setpoint_arm = -35;
         }else {
-            setpoint_arm = 420;
+            setpoint_arm = 441;
         }
     }
 
     public void up_arm_to_pos(double postion){
         setpoint_arm = postion;
     }
-
 }

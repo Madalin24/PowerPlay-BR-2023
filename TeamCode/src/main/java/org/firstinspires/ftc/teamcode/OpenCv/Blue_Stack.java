@@ -73,36 +73,17 @@ public class Blue_Stack extends LinearOpMode {
         final Thread tostart = new Thread() {
             public void run() {
                 arm.up_arm_to_pos(120);
-                Blue_Stack.this.sleep(900);
                 minicookies.startoff();
-                Blue_Stack.this.sleep(200);
             }
         };
 
         TrajectorySequence tr1 = drive.trajectorySequenceBuilder(new Pose2d(31.45, -63.28, Math.toRadians(90.00)))
-                .addTemporalMarker(0,()->{
+                .addTemporalMarker(0, () -> {
                     minicookies.startoff();
 
                 })
                 .splineTo(new Vector2d(37.89, -18.38), Math.toRadians(94.04))
                 .splineToLinearHeading(new Pose2d(46.49, -15.08, Math.toRadians(-30.00)), Math.toRadians(23.79))
-                .build();
-
-        TrajectorySequence tr2 = drive.trajectorySequenceBuilder(new Pose2d(31.45, -63.28, Math.toRadians(90.00)))
-                .addTemporalMarker(0,()->{
-                    tostart.start();
-                    while (tostart.isAlive()) {
-                        arm.update();
-                    }
-                })
-                .build();
-
-        TrajectorySequence gf = drive.trajectorySequenceBuilder(new Pose2d())
-                .forward(20)
-                .build();
-
-        TrajectorySequence turn = drive.trajectorySequenceBuilder(new Pose2d())
-                .turn(180)
                 .build();
 
         TrajectorySequence right = drive.trajectorySequenceBuilder(new Pose2d(46.49, -15.08, Math.toRadians(-30.00)))
@@ -120,24 +101,25 @@ public class Blue_Stack extends LinearOpMode {
                 .build();
 
 
-        final Thread preload = new Thread(){
+        final Thread preload = new Thread() {
             public void run() {
+                Blue_Stack.this.sleep(800);
                 lift.up(2);
                 minicookies.pick.setPosition(0.5);
-                Blue_Stack.this.sleep(800);
+                Blue_Stack.this.sleep(2000);
                 minicookies.put();
-                Blue_Stack.this.sleep(300);
+                Blue_Stack.this.sleep(700);
                 minicookies.take();
-                Blue_Stack.this.sleep(150);
+                Blue_Stack.this.sleep(1000);
                 lift.down();
             }
         };
 
-        final Thread stack1 = new Thread(){
+        final Thread s5 = new Thread() {
             public void run() {
                 minicookies.stack5();
-                Blue_Stack.this.sleep(100);
-                minicookies.open();
+                Blue_Stack.this.sleep(500);
+                minicookies.close();
             }
         };
 
@@ -156,21 +138,24 @@ public class Blue_Stack extends LinearOpMode {
         };
 
 
-        drive.setPoseEstimate(tr1.start());
-
-        minicookies.init();
-
         waitForStart();
 
-        drive.followTrajectorySequence(tr2);
-
-        while (opModeIsActive()) {
-
-
+        tostart.start();
+        while (tostart.isAlive()){
             arm.update();
-            lift.update();
-
         }
+
+
+            while (opModeIsActive()) {
+
+                arm.up_arm_to_pos(145);
+
+                preload.start();
+
+                arm.update();
+                lift.update();
+
+            }
             /*runtime.reset();
             while (opModeIsActive() && runtime.seconds() < 4.2) {
                 if (runtime.seconds() > 0.1 && runtime.seconds() < 0.9) {
@@ -555,6 +540,7 @@ public class Blue_Stack extends LinearOpMode {
         }
 
        */
+        }
     }
-}
+
 

@@ -25,6 +25,9 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -41,7 +44,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 import java.util.ArrayList;
 
 @Autonomous
-public class Red extends LinearOpMode
+public class Blue_Preload extends LinearOpMode
 {
     OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
@@ -72,32 +75,83 @@ public class Red extends LinearOpMode
     GetCookies lift ;
     Arm arm ;
 
+    private DcMotorEx leftFront, leftRear, rightRear, rightFront;
+
+    double drivee;   // Power for forward and back motion
+    double strafe;  // Power for left and right motion
+    double rotate;  // Power for rotating the robot
+
+    ElapsedTime runtime = new ElapsedTime();
+    ElapsedTime start = new ElapsedTime();
+
+
     @Override
     public void runOpMode()
     {
 
 
-        drive = new SampleMecanumDrive(hardwareMap);
+//        drive = new SampleMecanumDrive(hardwareMap);
         minicookies = new MiniCookies(hardwareMap);
         lift = new GetCookies(hardwareMap);
         arm = new Arm(hardwareMap);
 
 
+        leftFront = hardwareMap.get(DcMotorEx.class, "lf");
+        leftRear = hardwareMap.get(DcMotorEx.class, "lb");
+        rightRear = hardwareMap.get(DcMotorEx.class, "rb");
+        rightFront = hardwareMap.get(DcMotorEx.class, "rf");
 
-        TrajectorySequence tr1 = drive.trajectorySequenceBuilder(new Pose2d(-35.81, -63.85, Math.toRadians(90.00)))
-                .lineTo(new Vector2d(-35.42, -13.94))
+        leftRear.setDirection(DcMotorEx.Direction.REVERSE);
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+
+
+/*
+        TrajectorySequence tr1 = drive.trajectorySequenceBuilder(new Pose2d(31.45, -63.28, Math.toRadians(90.00)))
+                .splineTo(new Vector2d(37.89, -18.38), Math.toRadians(94.04))
+                .addTemporalMarker(0,()->{
+                    minicookies.startoff();
+                })
+                .splineToLinearHeading(new Pose2d(46.49, -15.08, Math.toRadians(-30.00)), Math.toRadians(23.79))
                 .build();
 
 
-        TrajectorySequence left = drive.trajectorySequenceBuilder(tr1.end())
-                .lineTo(new Vector2d(-38, -12.95))
-                .build();
-        TrajectorySequence right = drive.trajectorySequenceBuilder(tr1.end())
-                .lineTo(new Vector2d(-32, -12.54))
+        TrajectorySequence tr1 = drive.trajectorySequenceBuilder(new Pose2d(31.45, -63.28, Math.toRadians(90.00)))
+                .lineTo(new Vector2d(36.05, -61.21))
+                .addTemporalMarker(0,()->{
+                    minicookies.startoff();
+                })
+                .splineTo(new Vector2d(37.89, -18.38), Math.toRadians(89.37))
+                .splineToLinearHeading(new Pose2d(46.49, -15.08, Math.toRadians(-30.00)), Math.toRadians(23.69))
                 .build();
 
 
-        drive.setPoseEstimate(tr1.start());
+
+
+        TrajectorySequence left = drive.trajectorySequenceBuilder(new Pose2d(46.49, -15.08, Math.toRadians(-30.00)))
+                .lineToLinearHeading(new Pose2d(35.29, -11.83, Math.toRadians(-90.00)))
+                .lineToLinearHeading(new Pose2d(11.42, -12.97, Math.toRadians(-90.00)))
+                .build();
+
+
+
+
+        TrajectorySequence mid = drive.trajectorySequenceBuilder(new Pose2d(46.49, -15.08, Math.toRadians(-30.00)))
+                .lineToLinearHeading(new Pose2d(35.29, -11.83, Math.toRadians(-90.00)))
+                .build();
+
+
+
+        TrajectorySequence right = drive.trajectorySequenceBuilder(new Pose2d(46.49, -15.08, Math.toRadians(-30.00)))
+                .lineToLinearHeading(new Pose2d(60.43, -12.95, Math.toRadians(-90.00)))
+                .build();
+
+    drive.setPoseEstimate(tr1.start());
+
+    */
+
+
+
+
 
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -121,6 +175,24 @@ public class Red extends LinearOpMode
         });
 
         telemetry.setMsTransmissionInterval(50);
+
+        final Thread aup = new Thread(){
+            public void run() {
+                arm.up_arm_to_pos(140);
+                minicookies.up();
+                Blue_Preload.this.sleep(500);
+                lift.up(1);
+                minicookies.pick.setPosition(30);
+                Blue_Preload.this.sleep(750);
+                minicookies.put();
+                Blue_Preload.this.sleep(800);
+                minicookies.take();
+                lift.down();
+                Blue_Preload.this.sleep(2000);
+                minicookies.init();
+                arm.up_arm_to_pos(0);
+            }
+        };
 
 
         /*
@@ -147,12 +219,12 @@ public class Red extends LinearOpMode
 
                 if(tagFound)
                 {
-                    telemetry.addLine("Tag of interest is in sight!\n\nLocation data:");
+                    telemetry.addLine("CAMERA VEDE ALA!\n\nLocation data:");
                     tagToTelemetry(tagOfInterest);
                 }
                 else
                 {
-                    telemetry.addLine("Don't see tag of interest :(");
+                    telemetry.addLine("nu vede ala :(");
 
                     if(tagOfInterest == null)
                     {
@@ -206,16 +278,123 @@ public class Red extends LinearOpMode
 
         /* Actually do something useful */
         if(tagOfInterest == null || tagOfInterest.id == LEFT){
-            drive.followTrajectorySequence(tr1);
-            drive.followTrajectorySequence(left);
-        }else if(tagOfInterest.id == MIDDLE){
-            drive.followTrajectorySequence(tr1);
-        } else if (tagOfInterest.id == RIGHT) {
-            drive.followTrajectorySequence(tr1);
-            drive.followTrajectorySequence(right);
 
+            driveForward(0.7);
+            sleep(550);
+            turnLeft(0.7);
+            sleep(350);
+            driveForward(0.69);
+            sleep(550);
+            turnLeft(0.5);
+            sleep(350);
+            stopDriving();
+            aup.start();
+            sleep(1000);
+            arm.up_arm_to_pos(0);
+            minicookies.init();
+            while (opModeIsActive()) {
+                arm.update();
+                lift.update();
+            }
+            /*
+            driveForward(0.7);
+            sleep(1069);
+            turnRight(0.6);
+            sleep(469);
+            driveForward(0.5);
+            sleep(250);
+            stopDriving();
+       /*     turnLeft(0.4);
+            sleep(750);
+            driveForward(0.4);
+            sleep(1060);
+            stopDriving();*/
+
+       /*     driveForward(0.4);.
+            sleep(2500);
+            turnRight(0.4);
+
+            sleep(1500);
+            //codul de brat + glisiere de 3-5 ori loop
+
+            turnRight(0.4);
+            sleep(1000);
+            driveForward(0.4);
+            sleep(1250);
+            stopDriving();
+
+*/
+
+        }else if(tagOfInterest.id == MIDDLE) {
+
+            driveForward(0.5);
+            sleep(750);
+            turnRight(0.5);
+            sleep(800);
+            stopDriving();
+            aup.start();
+            sleep(1000);
+            arm.up_arm_to_pos(0);
+            minicookies.init();
+            while (opModeIsActive()) {
+                arm.update();
+                lift.update();
+            }
+        /*
+            driveForward(0.4);
+            sleep(2500);
+            turnRight(0.4);
+            sleep(1400);
+            //codul de brat + glisiere de 3-5 ori loop
+
+            stopDriving();
+*/
+        } else if (tagOfInterest.id == RIGHT) {
+
+            driveForward(0.7);
+            sleep(500);
+            turnRight(0.7);
+            sleep(340);
+            driveForward(0.69);
+            sleep(325);
+            stopDriving();
+            sleep(1000);
+            arm.up_arm_to_pos(0);
+            minicookies.init();
+            /*driveForward(0.7);
+            sleep(500);
+            turnRight(0.7);
+            sleep(340);
+            driveForward(0.69);
+            sleep(325);
+            stopDriving();*/
         }
 
+    }
+
+    private void driveForward(double power){
+        leftFront.setPower(power);
+        leftRear.setPower(power);
+        rightRear.setPower(power);
+        rightFront.setPower(power);
+    }
+    private void turnRight(double power){
+        rightFront.setPower(-power);
+        rightRear.setPower(-power);
+        leftFront.setPower(power);
+        leftRear.setPower(power);
+    }
+    private void turnLeft(double power){
+        leftFront.setPower(-power);
+        leftRear.setPower(-power);
+        rightFront.setPower(power);
+        rightRear.setPower(power);
+    }
+    private void stopDriving(){
+        leftFront.setPower(0);
+        rightFront.setPower(0);
+        leftRear.setPower(0);
+        rightRear.setPower(0);
     }
 
     void tagToTelemetry(AprilTagDetection detection)
@@ -229,3 +408,4 @@ public class Red extends LinearOpMode
         telemetry.addLine(String.format("Rotation Roll: %.2f degrees", Math.toDegrees(detection.pose.roll)));
     }
 }
+
