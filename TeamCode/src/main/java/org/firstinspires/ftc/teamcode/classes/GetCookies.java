@@ -22,7 +22,7 @@ public class GetCookies {
 
     public ElapsedTime runtime = new ElapsedTime();
 
-    public static double maxPIDPower = 0.5;
+    public static double maxPIDPower = 1;
     public static double kP = 0.013;
     public static double kI = 0.0001;
     public static double kD = 0.0001;
@@ -31,6 +31,8 @@ public class GetCookies {
     public static double setpoint = 0;
 
     double ticks_in_degrees = 145.1 / 360;
+
+    double last_pos = 527;
 
     public GetCookies(HardwareMap hardwareMap) {
 
@@ -78,13 +80,8 @@ public class GetCookies {
             double powerr = pidr + ffr;
 
             gr.setPower(powerr);
-
-
         }
-
     }
-
-
     public void down(){
         setpoint = 0;
     }
@@ -93,10 +90,23 @@ public class GetCookies {
         if(level == 1){
             setpoint = 300;
         }else if(level == 2){
-            setpoint = 730;
+            setpoint = 750;
         }else{
             setpoint = 0;
         }
+    }
+
+    public void one_down(){
+        setpoint = last_pos - 7;
+        last_pos -= 7;
+    }
+
+    public void one(){
+        setpoint = last_pos;
+    }
+    public void one_up(){
+        setpoint = last_pos + 7;
+        last_pos += 7;
     }
 
 }

@@ -261,65 +261,30 @@ public class Blue extends LinearOpMode
         if(tagOfInterest == null || tagOfInterest.id == LEFT){
 
 
-            driveForward(0.7);
-            sleep(550);
-            turnLeft(0.7);
-            sleep(345);
-            driveForward(0.69);
-            sleep(400);
-            stopDriving();
-/*
-            driveForward(0.7);
-            sleep(1069);
-            turnRight(0.6);
-            sleep(469);
-            driveForward(0.5);
-            sleep(250);
-            stopDriving();
-       /*     turnLeft(0.4);
+            driveForward(0.4);
+            sleep(1250);
+            turnLeft(0.4);
             sleep(750);
             driveForward(0.4);
             sleep(1060);
-            stopDriving();*/
-
-       /*     driveForward(0.4);.
-            sleep(2500);
-            turnRight(0.4);
-
-            sleep(1500);
-            //codul de brat + glisiere de 3-5 ori loop
-
-            turnRight(0.4);
-            sleep(1000);
-            driveForward(0.4);
-            sleep(1250);
             stopDriving();
 
-*/
+
 
         }else if(tagOfInterest.id == MIDDLE){
 
-
-            driveForward(0.5);
-            sleep(630) ;
-            stopDriving();
-        /*
             driveForward(0.4);
-            sleep(2500);
-            turnRight(0.4);
-            sleep(1400);
-            //codul de brat + glisiere de 3-5 ori loop
-
+            sleep(1000);
             stopDriving();
-*/
+
         } else if (tagOfInterest.id == RIGHT) {
 
-            driveForward(0.7);
-            sleep(500);
-            turnRight(0.7);
-            sleep(340);
-            driveForward(0.69);
-            sleep(325);
+            driveForward(0.4);
+            sleep(1250);
+            turnRight(0.4);
+            sleep(750);
+            driveForward(0.4);
+            sleep(1150 );
             stopDriving();
         }
 
@@ -327,9 +292,9 @@ public class Blue extends LinearOpMode
 
     private void driveForward(double power){
         leftFront.setPower(power);
+        rightFront.setPower(power);
         leftRear.setPower(power);
         rightRear.setPower(power);
-        rightFront.setPower(power);
     }
     private void turnRight(double power){
         rightFront.setPower(-power);

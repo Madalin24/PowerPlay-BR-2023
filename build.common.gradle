@@ -58,7 +58,7 @@ android {
         applicationId 'com.qualcomm.ftcrobotcontroller'
         minSdkVersion 24
         //noinspection ExpiredTargetSdkVersion
-        targetSdkVersion 29
+        targetSdkVersion 28
         multiDexEnabled !useProguard
 
         /**
@@ -142,5 +142,7 @@ repositories {
     flatDir {
         dirs rootProject.file('libs')
     }
+    mavenCentral()
+    jcenter()
 }
 

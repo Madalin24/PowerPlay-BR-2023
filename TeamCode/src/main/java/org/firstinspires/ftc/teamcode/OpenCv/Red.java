@@ -43,7 +43,7 @@ import java.util.ArrayList;
 @Autonomous
 public class Red extends LinearOpMode
 {
-    OpenCvCamera camera;
+   OpenCvCamera camera;
     AprilTagDetectionPipeline aprilTagDetectionPipeline;
 
     static final double FEET_PER_METER = 3.28084;
@@ -71,6 +71,9 @@ public class Red extends LinearOpMode
     MiniCookies minicookies;
     GetCookies lift ;
     Arm arm ;
+    ElapsedTime runtime = new ElapsedTime();
+    ElapsedTime start = new ElapsedTime();
+
 
     @Override
     public void runOpMode()
@@ -90,14 +93,22 @@ public class Red extends LinearOpMode
 
 
         TrajectorySequence left = drive.trajectorySequenceBuilder(tr1.end())
-                .lineTo(new Vector2d(-38, -12.95))
+                .lineTo(new Vector2d(-61.60, -12.95))
                 .build();
         TrajectorySequence right = drive.trajectorySequenceBuilder(tr1.end())
-                .lineTo(new Vector2d(-32, -12.54))
+                .lineTo(new Vector2d(-12.74, -12.54))
                 .build();
+
+
+
 
 
         drive.setPoseEstimate(tr1.start());
+
+
+
+
+
 
 
         int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
@@ -206,11 +217,11 @@ public class Red extends LinearOpMode
 
         /* Actually do something useful */
         if(tagOfInterest == null || tagOfInterest.id == LEFT){
-            drive.followTrajectorySequence(tr1);
-            drive.followTrajectorySequence(left);
+                drive.followTrajectorySequence(tr1);
+                drive.followTrajectorySequence(left);
         }else if(tagOfInterest.id == MIDDLE){
-            drive.followTrajectorySequence(tr1);
-        } else if (tagOfInterest.id == RIGHT) {
+drive.followTrajectorySequence(tr1);
+            } else if (tagOfInterest.id == RIGHT) {
             drive.followTrajectorySequence(tr1);
             drive.followTrajectorySequence(right);
 
