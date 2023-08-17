@@ -1,3 +1,9 @@
+## MakeOpenCvWork
+
+Instal opencv in ControlHub
+https://github.com/OpenFTC/OpenCV-Repackaged/tree/9a4d3d4bc001feffb3767842fa2de0c38a98883a/doc/native_libs/armeabi-v7a
+
+
 ## TeamCode Module
 
 Welcome!
